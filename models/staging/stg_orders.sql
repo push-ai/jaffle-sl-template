@@ -22,8 +22,16 @@ renamed as (
         (tax_paid / 100.0) as tax_paid,
 
         ---------- timestamps
-        {{dbt.date_trunc('day','ordered_at')}} as ordered_at
-
+        date({{dbt.dateadd(
+                datepart="day",
+                interval= dbt.datediff(
+                    "MAX(ordered_at) OVER()"
+                    ,"current_date"
+                    ,"day"
+                ),
+                from_date_or_timestamp='ordered_at'
+            )
+        }}) as ordered_at
     from source
 
 )
